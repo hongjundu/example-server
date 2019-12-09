@@ -12,7 +12,7 @@ import (
 func Init() error {
 	logger.Debugf("[db] Init")
 
-	connString := getConnString()
+	connString := GetConnString()
 	logger.Debugf("[storage] db connect string: %s", connString)
 
 	err := orm.RegisterDataBase("default", "mysql", connString, 30)
@@ -32,8 +32,12 @@ func Init() error {
 
 }
 
-func getConnString() string {
+func GetConnString() string {
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=Local", env.Env.MySqlUser, env.Env.MySqlPassword, env.Env.MySqlHost, env.Env.MySqlDb)
+}
+
+func GetCasbinConnString() string {
+	return fmt.Sprintf("%s:%s@tcp(%s)/", env.Env.MySqlUser, env.Env.MySqlPassword, env.Env.MySqlHost)
 }
 
 func createTables() error {

@@ -66,3 +66,20 @@ MBFelFo29h7ne53+lGPWB82LmnYAZfv9/DpAIQ0vvCIxDiUxeTnvYkfHAiG8iBxN
 wDzNlk9bYhJCblz0Q5lZ/NEusdvA4ujfsQ+J0Yc5ARbz0koaGFAGjxSFSeLxSUi6
 R71voRv+0CWz9sztpYfCKUpI47zz7oitQQqjt41QZ+LSkBVNYi6UHuI557A=
 -----END RSA PRIVATE KEY-----`
+
+const CosbinConf = `
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+`

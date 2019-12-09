@@ -33,9 +33,13 @@ func (server *Server) notFoundHandler(c *gin.Context) (response interface{}, err
 	return
 }
 
-func (server *Server) helloHandler(c *gin.Context) (response interface{}, err error) {
+func (server *Server) readHandler(c *gin.Context) (response interface{}, err error) {
+	response = apihelper.NewOKResponse("read by: " + c.GetString("user"))
+	return
+}
 
-	response = apihelper.NewOKResponse("hello " + c.GetString("user"))
+func (server *Server) writeHandler(c *gin.Context) (response interface{}, err error) {
+	response = apihelper.NewOKResponse("write by:  " + c.GetString("user"))
 	return
 }
 
@@ -49,6 +53,8 @@ func (server *Server) loginHandler(c *gin.Context) (response interface{}, err er
 		err = apihelper.NewError(http.StatusBadRequest, e.Error())
 		return
 	}
+
+	// TODO: verify user & password from DB ...
 
 	claims := jwt.MapClaims{}
 
