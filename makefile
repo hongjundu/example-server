@@ -30,7 +30,7 @@ run: $(SERVER_NAME)
 	&& export EXAMPLE_SERVER_MYSQLUSER=test \
 	&& export EXAMPLE_SERVER_MYSQLPASSWORD=123456 \
 	&& export EXAMPLE_SERVER_REDISMODE=standalone \
-	&& export EXAMPLE_SERVER_REDISHOST=172.17.0.1:6379 \
+	&& export EXAMPLE_SERVER_REDISHOST=127.0.0.1:6379 \
 	&& export EXAMPLE_SERVER_REDISDB=2 \
 	&& $(BIN_DIR)/$(SERVER_NAME)
 
@@ -41,7 +41,7 @@ start: stop
 	&& export EXAMPLE_SERVER_MYSQLUSER=test \
 	&& export EXAMPLE_SERVER_MYSQLPASSWORD=123456 \
 	&& export EXAMPLE_SERVER_REDISMODE=standalone \
-	&& export EXAMPLE_SERVER_REDISHOST=172.17.0.1:6379 \
+	&& export EXAMPLE_SERVER_REDISHOST=127.0.0.1:6379 \
 	&& export EXAMPLE_SERVER_REDISDB=2 \
 	&& nohup $(BIN_DIR)/$(SERVER_NAME)> /dev/null &
 
@@ -61,3 +61,7 @@ test:
 
 clean:
 	rm -rf $(BIN_DIR)
+
+rsakeys:
+	openssl genrsa -out .keys/rs256-4096-private.rsa 4096
+	openssl rsa -in .keys/rs256-4096-private.rsa -pubout > .keys/rs256-4096-public.pem

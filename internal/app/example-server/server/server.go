@@ -2,10 +2,15 @@ package server
 
 import (
 	"context"
+	"crypto/rsa"
 	"example-server/internal/app/example-server/storage"
+	"example-server/internal/pkg/consts"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 	"github.com/gin-gonic/gin"
 	"github.com/hongjundu/go-level-logger"
+	"github.com/hongjundu/go-rest-api-helper.v1"
 	"github.com/rs/cors"
 	"net/http"
 	"os"
@@ -15,7 +20,9 @@ import (
 )
 
 type Server struct {
-	router *gin.Engine
+	router        *gin.Engine
+	jwtPublicKey  *rsa.PublicKey
+	jwtPrivateKey *rsa.PrivateKey
 }
 
 func NewServer() *Server {
@@ -44,13 +51,48 @@ func myLogger() gin.HandlerFunc {
 func (server *Server) AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		// TODO: verify token
+		var customClaims struct {
+			jwt.StandardClaims
+			User string `json:"user"`
+		}
 
-		//c.JSON(http.StatusUnauthorized, apihelper.NewErrorResponse(apihelper.NewError(http.StatusUnauthorized, "Unauthorized")))
-		//c.Abort()
+		token, err := request.ParseFromRequestWithClaims(c.Request, request.AuthorizationHeaderExtractor, &customClaims,
+			func(token *jwt.Token) (interface{}, error) {
+				return server.jwtPublicKey, nil
+			})
 
-		c.Next()
+		if err == nil {
+			if token.Valid {
+				c.Set("user", customClaims.User)
+				c.Next()
+			} else {
+				c.JSON(http.StatusUnauthorized, apihelper.NewErrorResponse(apihelper.NewError(http.StatusUnauthorized, "Invalid Token")))
+				c.Abort()
+			}
+
+		} else {
+			c.JSON(http.StatusUnauthorized, apihelper.NewErrorResponse(apihelper.NewError(http.StatusUnauthorized, "Unauthorized")))
+			c.Abort()
+		}
 	}
+}
+
+func (server *Server) loadJwtKeys() (err error) {
+	if server.jwtPublicKey, err = jwt.ParseRSAPublicKeyFromPEM([]byte(consts.JWTPubKeyString)); err != nil {
+		logger.Errorf("[Server] ReadJWTPublicKey failed, %v", err)
+		return
+	} else {
+		logger.Infof("[Server] ReadJWTPublicKey successfully")
+	}
+
+	if server.jwtPrivateKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(consts.JWTPrivateKeyString)); err != nil {
+		logger.Errorf("[Server] ReadJWTPrivateKey failed, %v", err)
+		return
+	} else {
+		logger.Infof("[Server] ReadJWTPrivateKey successfully")
+	}
+
+	return
 }
 
 func (server *Server) configRouter() {
@@ -67,13 +109,17 @@ func (server *Server) configRouter() {
 	v1.GET("/version", ginHandlerFunc(server.versionHandler))
 	v1.Use(server.AuthRequired())
 	{
-		v1.POST("/tasks", ginHandlerFunc(server.createTaskHandler))
+		v1.POST("/hello", ginHandlerFunc(server.helloHandler))
 	}
 
 }
 
 func (server *Server) Run(port int) error {
 	logger.Debugf("[Server] Run")
+
+	if err := server.loadJwtKeys(); err != nil {
+		logger.Fatalf("[Server] loadJwtKeys: %+v", err)
+	}
 
 	server.configRouter()
 

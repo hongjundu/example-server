@@ -2,9 +2,11 @@ package server
 
 import (
 	"example-server/pkg/version"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/hongjundu/go-rest-api-helper.v1"
 	"net/http"
+	"time"
 )
 
 func ginHandlerFunc(f func(c *gin.Context) (interface{}, error)) gin.HandlerFunc {
@@ -31,13 +33,39 @@ func (server *Server) notFoundHandler(c *gin.Context) (response interface{}, err
 	return
 }
 
-func (server *Server) createTaskHandler(c *gin.Context) (response interface{}, err error) {
-	response = apihelper.NewOKResponse(nil)
+func (server *Server) helloHandler(c *gin.Context) (response interface{}, err error) {
+
+	response = apihelper.NewOKResponse("hello " + c.GetString("user"))
 	return
 }
 
 func (server *Server) loginHandler(c *gin.Context) (response interface{}, err error) {
-	response = apihelper.NewOKResponse(nil)
+	var param struct {
+		User     string `form:"user" json:"user" binding:"required"`
+		Password string `form:"password" json:"password" binding:"required"`
+	}
+
+	if e := c.ShouldBindJSON(&param); e != nil {
+		err = apihelper.NewError(http.StatusBadRequest, e.Error())
+		return
+	}
+
+	claims := jwt.MapClaims{}
+
+	now := time.Now()
+	exp := now.AddDate(0, 0, 1)
+
+	claims["iat"] = now.Unix()
+	claims["exp"] = exp.Unix()
+	claims["user"] = param.User
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	if tokens, e := token.SignedString(server.jwtPrivateKey); e == nil {
+		response = apihelper.NewOKResponse(gin.H{"token": tokens, "user": param.User})
+	} else {
+		err = apihelper.NewError(http.StatusInternalServerError, e.Error())
+	}
+
 	return
 }
 
