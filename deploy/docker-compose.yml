@@ -1,0 +1,15 @@
+version: '3'
+services:
+  api-server:
+    image: "sr/example-server:0.1.0"
+    container_name: "example-server"
+    environment:
+      - SR_TASK_SERVER_LOGLEVEL=0
+      - SR_TASK_SERVER_PORT=8000
+      - SR_TASK_SERVER_LOGPATH=/logs
+    ports:
+     - 8000:8000
+    volumes:
+     - /tmp/logs:/logs
+     - /etc/localtime:/etc/localtime
+    restart: always

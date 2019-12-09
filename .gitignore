@@ -1,0 +1,31 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+.cache
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# mac hidden files
+.DS_Store
+
+# gogland config dir
+.idea
+
+# glide runtime required dir
+.GOPATH
+bin
+
+### VisualStudioCode template
+.vscode
+/bin
+test.xml
+report.xml
+coverage.out
+check.md5
+Md5file
