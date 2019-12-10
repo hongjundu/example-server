@@ -2,6 +2,7 @@ package server
 
 import (
 	"example-server/pkg/version"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/hongjundu/go-rest-api-helper.v1"
@@ -67,10 +68,31 @@ func (server *Server) loginHandler(c *gin.Context) (response interface{}, err er
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	if tokens, e := token.SignedString(server.jwtPrivateKey); e == nil {
-		response = apihelper.NewOKResponse(gin.H{"token": tokens, "user": param.User})
+		if shortToken, e2 := server.genShortToken(tokens); e2 == nil {
+			response = apihelper.NewOKResponse(gin.H{"token": shortToken})
+		} else {
+			err = e2
+		}
+
 	} else {
 		err = apihelper.NewError(http.StatusInternalServerError, e.Error())
 	}
+
+	return
+}
+
+func (server *Server) logoutHandler(c *gin.Context) (response interface{}, err error) {
+
+	shortToken := c.GetString("token")
+	if len(shortToken) == 0 {
+		err = apihelper.NewError(http.StatusUnauthorized, "No token")
+		return
+	}
+
+	user := c.GetString("user")
+
+	err = server.clearShortToken(shortToken)
+	response = apihelper.NewOKResponse(fmt.Sprintf("%s: logged out", user))
 
 	return
 }

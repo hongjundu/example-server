@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
+	github.com/allegro/bigcache v1.2.1
 	github.com/astaxie/beego v1.12.0
 	github.com/casbin/casbin v1.7.0
 	github.com/casbin/xorm-adapter v1.0.0

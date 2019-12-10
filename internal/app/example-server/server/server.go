@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"example-server/internal/app/example-server/storage"
 	"fmt"
+	"github.com/allegro/bigcache"
 	"github.com/casbin/casbin"
 	"github.com/gin-gonic/gin"
 	"github.com/hongjundu/go-level-logger"
@@ -21,6 +22,7 @@ type Server struct {
 	jwtPublicKey  *rsa.PublicKey
 	jwtPrivateKey *rsa.PrivateKey
 	enforcer      *casbin.Enforcer
+	bigCache      *bigcache.BigCache
 }
 
 func NewServer() *Server {
@@ -58,8 +60,9 @@ func (server *Server) configRouter() {
 	v1 := server.router.Group("/v1")
 	v1.POST("/login", ginHandlerFunc(server.loginHandler))
 	v1.GET("/version", ginHandlerFunc(server.versionHandler))
-	v1.Use(server.tokenRequired())
+	v1.Use(server.jwtTokenRequired())
 	{
+		v1.POST("/logout", ginHandlerFunc(server.logoutHandler))
 		v1.GET("/hello", server.acl("data", "read"), ginHandlerFunc(server.readHandler))
 		v1.POST("/hello", server.acl("data", "write"), ginHandlerFunc(server.writeHandler))
 	}
@@ -75,6 +78,12 @@ func (server *Server) Run(port int) error {
 
 	if err := server.createEnforcer(); err != nil {
 		logger.Fatalf("[Server] createEnforcer: %+v", err)
+	}
+
+	if bigCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(1 * time.Minute)); err != nil {
+		logger.Fatalf("[Server] bigcache.NewBigCache: %+v", err)
+	} else {
+		server.bigCache = bigCache
 	}
 
 	server.configRouter()
