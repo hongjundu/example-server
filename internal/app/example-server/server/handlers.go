@@ -50,8 +50,8 @@ func (server *Server) writeHandler(c *gin.Context) (response interface{}, err er
 // @Param loginParam body apimodel.LoginParam true "login param"
 // @accept application/json
 // @Produce application/json
-// @Success 200
-// @Success 401
+// @Success 200 {string} string "{"status":"ok","code":200,"data":{"token":"9a22723c3589fd6922f65cbef2310b541e7721ca351f2cf4a17a9d84e6b9599e"}}""
+// @Failure 401 {string} string "{"status":"error","code":401,"msg":"Wrong user name or password"}"
 // @Router /login [post]
 func (server *Server) loginHandler(c *gin.Context) (response interface{}, err error) {
 	var param apimodel.LoginParam
@@ -92,8 +92,8 @@ func (server *Server) loginHandler(c *gin.Context) (response interface{}, err er
 // @Param Authorization header string true "bearer token"
 // @accept application/json
 // @Produce application/json
-// @Success 200
-// @Success 401
+/// @Success 200 {string} string "{"status":"ok","code":200,"data":"admin: logged out"}"
+// @Failure 401 {string} string "{"status":"error","code":401,"msg":"Wrong token or token expires"}"
 // @Router /logout [post]
 func (server *Server) logoutHandler(c *gin.Context) (response interface{}, err error) {
 

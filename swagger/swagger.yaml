@@ -41,8 +41,14 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
-        "401": {}
+        "200":
+          description: '{"status":"ok","code":200,"data":{"token":"9a22723c3589fd6922f65cbef2310b541e7721ca351f2cf4a17a9d84e6b9599e"}}'
+          schema:
+            type: string
+        "401":
+          description: '{"status":"error","code":401,"msg":"Wrong user name or password"}'
+          schema:
+            type: string
       summary: user login
       tags:
       - login
@@ -59,8 +65,14 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
-        "401": {}
+        "200":
+          description: '{"status":"ok","code":200,"data":"admin: logged out"}'
+          schema:
+            type: string
+        "401":
+          description: '{"status":"error","code":401,"msg":"Wrong token or token expires"}'
+          schema:
+            type: string
       summary: user logout
       tags:
       - logout

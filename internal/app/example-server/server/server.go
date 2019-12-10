@@ -63,14 +63,13 @@ func (server *Server) configRouter() {
 	v1 := server.router.Group("/v1")
 	v1.POST("/login", ginHandlerFunc(server.loginHandler))
 	v1.GET("/version", ginHandlerFunc(server.versionHandler))
+	v1.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "EXAMPLE_SERVER_DISABLE_SWAGGER"))
 	v1.Use(server.jwtTokenRequired())
 	{
 		v1.POST("/logout", ginHandlerFunc(server.logoutHandler))
 		v1.GET("/hello", server.acl("data", "read"), ginHandlerFunc(server.readHandler))
 		v1.POST("/hello", server.acl("data", "write"), ginHandlerFunc(server.writeHandler))
 	}
-
-	server.router.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "EXAMPLE_SERVER_SWAGGER"))
 }
 
 func (server *Server) Run(port int) error {
