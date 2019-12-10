@@ -1,4 +1,4 @@
-.PHONY: all example-server fmt start run stop docker test clean
+.PHONY: all example-server fmt start run stop docker test clean swag
 
 GOPATH:=$(shell go env GOPATH)
 ROOT_DIR = $(CURDIR)
@@ -65,3 +65,6 @@ clean:
 rsakeys:
 	openssl genrsa -out .keys/rs256-4096-private.rsa 4096
 	openssl rsa -in .keys/rs256-4096-private.rsa -pubout > .keys/rs256-4096-public.pem
+
+swag:
+	swag init -g ./cmd/$(SERVER_NAME)/*.go ./internal/app/$(SERVER_NAME)/server/*.go -o ./swagger

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"example-server/internal/app/example-server/server/apimodel"
 	"example-server/pkg/version"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -44,11 +45,16 @@ func (server *Server) writeHandler(c *gin.Context) (response interface{}, err er
 	return
 }
 
+// @Tags login
+// @Summary user login
+// @Param loginParam body apimodel.LoginParam true "login param"
+// @accept application/json
+// @Produce application/json
+// @Success 200
+// @Success 401
+// @Router /login [post]
 func (server *Server) loginHandler(c *gin.Context) (response interface{}, err error) {
-	var param struct {
-		User     string `form:"user" json:"user" binding:"required"`
-		Password string `form:"password" json:"password" binding:"required"`
-	}
+	var param apimodel.LoginParam
 
 	if e := c.ShouldBindJSON(&param); e != nil {
 		err = apihelper.NewError(http.StatusBadRequest, e.Error())
@@ -81,6 +87,14 @@ func (server *Server) loginHandler(c *gin.Context) (response interface{}, err er
 	return
 }
 
+// @Tags logout
+// @Summary user logout
+// @Param Authorization header string true "bearer token"
+// @accept application/json
+// @Produce application/json
+// @Success 200
+// @Success 401
+// @Router /logout [post]
 func (server *Server) logoutHandler(c *gin.Context) (response interface{}, err error) {
 
 	shortToken := c.GetString("token")

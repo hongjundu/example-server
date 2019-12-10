@@ -4,12 +4,15 @@ import (
 	"context"
 	"crypto/rsa"
 	"example-server/internal/app/example-server/storage"
+	_ "example-server/swagger"
 	"fmt"
 	"github.com/allegro/bigcache"
 	"github.com/casbin/casbin"
 	"github.com/gin-gonic/gin"
 	"github.com/hongjundu/go-level-logger"
 	"github.com/rs/cors"
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 	"net/http"
 	"os"
 	"os/signal"
@@ -67,6 +70,7 @@ func (server *Server) configRouter() {
 		v1.POST("/hello", server.acl("data", "write"), ginHandlerFunc(server.writeHandler))
 	}
 
+	server.router.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "EXAMPLE_SERVER_SWAGGER"))
 }
 
 func (server *Server) Run(port int) error {
