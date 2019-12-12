@@ -17,7 +17,7 @@ func ginHandlerFunc(f func(c *gin.Context) (interface{}, error)) gin.HandlerFunc
 		rsp, err := f(c)
 
 		if err == nil {
-			c.JSON(http.StatusOK, rsp)
+			c.JSON(http.StatusOK, apihelper.NewOKResponse(rsp))
 		} else {
 			code := http.StatusInternalServerError
 
@@ -36,12 +36,12 @@ func (server *Server) notFoundHandler(c *gin.Context) (response interface{}, err
 }
 
 func (server *Server) readHandler(c *gin.Context) (response interface{}, err error) {
-	response = apihelper.NewOKResponse("read by: " + c.GetString("user"))
+	response = "read by: " + c.GetString("user")
 	return
 }
 
 func (server *Server) writeHandler(c *gin.Context) (response interface{}, err error) {
-	response = apihelper.NewOKResponse("write by:  " + c.GetString("user"))
+	response = "write by:  " + c.GetString("user")
 	return
 }
 
@@ -75,7 +75,7 @@ func (server *Server) loginHandler(c *gin.Context) (response interface{}, err er
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	if tokens, e := token.SignedString(server.jwtPrivateKey); e == nil {
 		if shortToken, e2 := server.genShortToken(tokens); e2 == nil {
-			response = apihelper.NewOKResponse(gin.H{"token": shortToken})
+			response = gin.H{"token": shortToken}
 		} else {
 			err = e2
 		}
@@ -106,7 +106,7 @@ func (server *Server) logoutHandler(c *gin.Context) (response interface{}, err e
 	user := c.GetString("user")
 
 	err = server.clearShortToken(shortToken)
-	response = apihelper.NewOKResponse(fmt.Sprintf("%s: logged out", user))
+	response = fmt.Sprintf("%s: logged out", user)
 
 	return
 }
@@ -121,7 +121,7 @@ func (server *Server) versionHandler(c *gin.Context) (response interface{}, err 
 
 	res.Version, res.GOVersion, res.BuildTime, res.BuildHost = version.Version, version.GOVersion, version.BuildTime, version.BuildHost
 
-	response = apihelper.NewOKResponse(res)
+	response = res
 
 	return
 }
