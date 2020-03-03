@@ -134,16 +134,7 @@ func (server *Server) Run(port int) error {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logger.Infof("[Server] shutdown server ...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := server.srv.Shutdown(ctx); err != nil {
-		logger.Fatalf("[Server] shutdown error: %v", err)
-	}
-
-	logger.Infof("[Server] server exit.")
+	server.Close()
 
 	return nil
 }
