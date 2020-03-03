@@ -63,8 +63,8 @@ clean:
 	rm -rf $(BIN_DIR)
 
 rsakeys:
-	openssl genrsa -out .keys/rs256-4096-private.rsa 4096
-	openssl rsa -in .keys/rs256-4096-private.rsa -pubout > .keys/rs256-4096-public.pem
+	openssl genrsa -out ./keys/rs256-4096-private.rsa 4096
+	openssl rsa -in ./keys/rs256-4096-private.rsa -pubout > ./keys/rs256-4096-public.pem
 
 swag:
 	swag init -g ./cmd/$(SERVER_NAME)/*.go ./internal/app/$(SERVER_NAME)/server/*.go -o ./swagger
