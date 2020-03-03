@@ -21,16 +21,19 @@ import (
 )
 
 type Server struct {
+	srv           *http.Server
 	router        *gin.Engine
 	jwtPublicKey  *rsa.PublicKey
 	jwtPrivateKey *rsa.PrivateKey
 	enforcer      *casbin.Enforcer
 	bigCache      *bigcache.BigCache
+	exit          chan struct{}
 }
 
 func NewServer() *Server {
 	return &Server{
 		router: gin.New(),
+		exit:   make(chan struct{}),
 	}
 }
 
@@ -58,17 +61,17 @@ func (server *Server) configRouter() {
 	//server.router.Use(myLogger())
 	server.router.Use(gin.Recovery())
 
-	server.router.NoRoute(ginHandlerFunc(server.notFoundHandler))
+	server.router.NoRoute(server.ginHandlerFunc(server.notFoundHandler))
 
 	v1 := server.router.Group("/v1")
-	v1.POST("/login", ginHandlerFunc(server.loginHandler))
-	v1.GET("/version", ginHandlerFunc(server.versionHandler))
+	v1.POST("/login", server.ginHandlerFunc(server.loginHandler))
+	v1.GET("/version", server.ginHandlerFunc(server.versionHandler))
 	v1.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "EXAMPLE_SERVER_DISABLE_SWAGGER"))
 	v1.Use(server.jwtTokenRequired())
 	{
-		v1.POST("/logout", ginHandlerFunc(server.logoutHandler))
-		v1.GET("/hello", server.acl("data", "read"), ginHandlerFunc(server.readHandler))
-		v1.POST("/hello", server.acl("data", "write"), ginHandlerFunc(server.writeHandler))
+		v1.POST("/logout", server.ginHandlerFunc(server.logoutHandler))
+		v1.GET("/hello", server.acl("data", "read"), server.ginHandlerFunc(server.readHandler))
+		v1.POST("/hello", server.acl("data", "write"), server.ginHandlerFunc(server.writeHandler))
 	}
 }
 
@@ -105,7 +108,7 @@ func (server *Server) Run(port int) error {
 		port = 8000
 	}
 
-	srv := &http.Server{
+	server.srv = &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: handler,
 	}
@@ -116,7 +119,7 @@ func (server *Server) Run(port int) error {
 
 	go func() {
 		// service connections
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Fatalf("[Server] listen error: %v", err)
 		}
 	}()
@@ -136,11 +139,41 @@ func (server *Server) Run(port int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := server.srv.Shutdown(ctx); err != nil {
 		logger.Fatalf("[Server] shutdown error: %v", err)
 	}
 
 	logger.Infof("[Server] server exit.")
 
 	return nil
+}
+
+func (server *Server) IsExiting() bool {
+	select {
+	case <-server.exit:
+		return true
+	default:
+		return false
+	}
+}
+
+func (server *Server) Close() {
+	logger.Debugf("[Server] Close")
+
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), 15)
+	defer cancel()
+
+	// Indicate that we do not accept request anymore
+	close(server.exit)
+
+	// Doesn't block if no connections, but will otherwise wait
+	// until the timeout deadline.
+	if err := server.srv.Shutdown(ctx); err != nil {
+		logger.Errorf("server shutdown error: %+v", err)
+	}
+	// Optionally, you could run svr.Shutdown in a goroutine and block on
+	// <-ctx.Done() if your application should wait for other services
+	// to finalize based on context cancellation.
+	logger.Infof("[HttpServer] shutdown gracefully")
 }

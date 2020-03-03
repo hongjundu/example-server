@@ -9,8 +9,10 @@ require (
 	github.com/astaxie/beego v1.12.0
 	github.com/casbin/casbin v1.7.0
 	github.com/casbin/xorm-adapter v1.0.0
+	github.com/coreos/etcd v3.3.18+incompatible // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/etcd-io/etcd v3.3.18+incompatible // indirect
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/spec v0.19.4 // indirect

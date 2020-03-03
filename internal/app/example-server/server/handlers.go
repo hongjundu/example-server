@@ -11,10 +11,17 @@ import (
 	"time"
 )
 
-func ginHandlerFunc(f func(c *gin.Context) (interface{}, error)) gin.HandlerFunc {
+func (server *Server) ginHandlerFunc(f func(c *gin.Context) (interface{}, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		rsp, err := f(c)
+		var err error
+		var rsp interface{}
+
+		if server.IsExiting() {
+			err = apihelper.NewError(http.StatusNotAcceptable, "服务正在退出，不接受请求")
+		} else {
+			rsp, err = f(c)
+		}
 
 		if err == nil {
 			c.JSON(http.StatusOK, apihelper.NewOKResponse(rsp))
