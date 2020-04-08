@@ -16,7 +16,7 @@ LDFLAGS = "-X '$(SERVER_NAME)/pkg/version.Version=${VERSION}' -X '$(SERVER_NAME)
 all: $(SERVER_NAME)
 
 $(SERVER_NAME):
-	CGO_ENABLED=0 GO111MODULE=on GOFLAGS=-mod=vendor go build -ldflags $(LDFLAGS) -o $(BIN_DIR)/$(SERVER_NAME) ./cmd/$(SERVER_NAME)
+	CGO_ENABLED=0 GO111MODULE=on GOFLAGS=-mod=vendor go build  -tags=jsoniter -ldflags $(LDFLAGS) -o $(BIN_DIR)/$(SERVER_NAME) ./cmd/$(SERVER_NAME)
 
 fmt:
 	go fmt ./cmd/...
