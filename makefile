@@ -24,7 +24,8 @@ fmt:
 	go fmt ./internal/...
 
 run: $(SERVER_NAME)
-	export EXAMPLE_SERVER_LOGPATH=/tmp \
+	export LOGXI=* \
+	&& export EXAMPLE_SERVER_LOGPATH=/tmp \
 	&& export EXAMPLE_SERVER_MYSQLHOST=127.0.0.1:3306 \
 	&& export EXAMPLE_SERVER_MYSQLDB=test \
 	&& export EXAMPLE_SERVER_MYSQLUSER=test \

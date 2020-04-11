@@ -9,7 +9,7 @@ import (
 	"github.com/casbin/xorm-adapter"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/hongjundu/go-level-logger"
+	"github.com/hongjundu/go-color-logger"
 	"github.com/hongjundu/go-rest-api-helper.v1"
 	"net/http"
 	"strings"
@@ -17,17 +17,17 @@ import (
 
 func (server *Server) loadJwtKeys() (err error) {
 	if server.jwtPublicKey, err = jwt.ParseRSAPublicKeyFromPEM([]byte(consts.JWTPubKeyString)); err != nil {
-		logger.Errorf("[Server] ReadJWTPublicKey failed, %v", err)
+		logger.Error("[Server] ReadJWTPublicKey", "error", err)
 		return
 	} else {
-		logger.Infof("[Server] ReadJWTPublicKey successfully")
+		logger.Info("[Server] ReadJWTPublicKey successfully")
 	}
 
 	if server.jwtPrivateKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(consts.JWTPrivateKeyString)); err != nil {
-		logger.Errorf("[Server] ReadJWTPrivateKey failed, %v", err)
+		logger.Error("[Server] ReadJWTPrivateKey", "error", err)
 		return
 	} else {
-		logger.Infof("[Server] ReadJWTPrivateKey successfully")
+		logger.Info("[Server] ReadJWTPrivateKey successfully")
 	}
 
 	return

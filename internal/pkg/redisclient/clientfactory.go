@@ -3,7 +3,7 @@ package redisclient
 import (
 	"example-server/internal/pkg/env"
 	"github.com/go-redis/redis"
-	"github.com/hongjundu/go-level-logger"
+	"github.com/hongjundu/go-color-logger"
 	"strings"
 )
 
@@ -18,10 +18,10 @@ type RedisClient interface {
 }
 
 func NewRedisClient() (client RedisClient, err error) {
-	logger.Debugf("[redisclient] NewRedisClient")
+	logger.Debug("[redisclient] NewRedisClient")
 
 	if len(env.Env.RedisHost) == 0 {
-		logger.Fatalf("[redisclient] No redis address was configed")
+		logger.Fatal("[redisclient] No redis address was configed")
 	}
 
 	if strings.Compare(env.Env.RedisMode, redisModeStandalone) == 0 {
@@ -33,7 +33,7 @@ func NewRedisClient() (client RedisClient, err error) {
 
 	} else if strings.Compare(env.Env.RedisMode, redisModeSentinel) == 0 {
 		if len(env.Env.RedisMasterName) == 0 {
-			logger.Fatalf("[redisclient] No master name was configed")
+			logger.Fatal("[redisclient] No master name was configed")
 		}
 
 		redisAddrs := strings.Split(env.Env.RedisHost, ",")
@@ -54,14 +54,14 @@ func NewRedisClient() (client RedisClient, err error) {
 		})
 
 	} else {
-		logger.Fatalf("[redisclient] unsupported redis mode: %s", env.Env.RedisMode)
+		logger.Fatal("[redisclient] unsupported redis mode: %s", env.Env.RedisMode)
 	}
 
 	if pong, e := client.Ping().Result(); e == nil {
-		logger.Infof("[redisclient] pong: %v", pong)
+		logger.Info("[redisclient]", "pong", pong)
 	} else {
 		err = e
-		logger.Errorf("[redisclient] NewRedisClient err: %v", err)
+		logger.Error("[redisclient] NewRedisClient", "error", err)
 		return
 	}
 

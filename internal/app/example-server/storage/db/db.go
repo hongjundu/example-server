@@ -6,25 +6,25 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/hongjundu/go-level-logger"
+	"github.com/hongjundu/go-color-logger"
 )
 
 func Init() error {
-	logger.Debugf("[db] Init")
+	logger.Debug("[db] Init")
 
 	connString := GetConnString()
-	logger.Debugf("[storage] db connect string: %s", connString)
+	logger.Debug("[storage] db", "conn string", connString)
 
 	err := orm.RegisterDataBase("default", "mysql", connString, 30)
 
 	if err != nil {
-		logger.Errorf("[db] ORM RegisterDataBase failed: %+v", err)
+		logger.Error("[db] ORM RegisterDataBase", "error", err)
 		return err
 	}
 
 	// Create tables if not exist
 	if err = createTables(); err != nil {
-		logger.Errorf("[db] create tables failed: %+v", err)
+		logger.Error("[db] create tables", "error", err)
 		return err
 	}
 
@@ -41,7 +41,7 @@ func GetCasbinConnString() string {
 }
 
 func createTables() error {
-	logger.Debugf("[db] createTables")
+	logger.Debug("[db] createTables")
 
 	name := "default" // database alias
 	force := false    // do not drop table before creating
@@ -49,7 +49,7 @@ func createTables() error {
 
 	var err error
 	if err = orm.RunSyncdb(name, force, verbose); err == nil {
-		logger.Infoln("[storage] create tables successfully")
+		logger.Info("[storage] create tables successfully")
 	}
 
 	return err

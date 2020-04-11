@@ -3,7 +3,7 @@ package main
 import (
 	"example-server/internal/app/example-server/server"
 	"example-server/internal/pkg/env"
-	"github.com/hongjundu/go-level-logger"
+	"github.com/hongjundu/go-color-logger"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -25,14 +25,14 @@ import (
 func main() {
 
 	if err := envconfig.Process("example_server", &env.Env); err != nil {
-		logger.Fatal(err)
+		logger.Fatal("[main] read envconfig", "error", err)
 	}
 
-	logger.Init(env.Env.LogLevel, "example-server", env.Env.LogPath, 100, 3, 30)
-	logger.Debugf("[main] env: %+v", env.Env)
+	logger.Init("example-server", env.Env.LogPath, 100, 3, 30)
+	logger.Debug("[main] env", "env", env.Env)
 
 	s := server.NewServer()
-	if e := s.Run(env.Env.Port); e != nil {
-		logger.Fatalf("%v", e)
+	if err := s.Run(env.Env.Port); err != nil {
+		logger.Fatal("[main] Run", "error", err)
 	}
 }

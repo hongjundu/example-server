@@ -9,7 +9,7 @@ import (
 	"github.com/allegro/bigcache"
 	"github.com/casbin/casbin"
 	"github.com/gin-gonic/gin"
-	"github.com/hongjundu/go-level-logger"
+	"github.com/hongjundu/go-color-logger"
 	"github.com/rs/cors"
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
@@ -41,7 +41,7 @@ func myLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := time.Now()
 
-		logger.Debugf("Method: %s URL: %s", c.Request.Method, c.Request.URL)
+		logger.Debug("Request", "Method", c.Request.Method, "URL", c.Request.URL)
 
 		c.Next()
 
@@ -50,12 +50,12 @@ func myLogger() gin.HandlerFunc {
 		// access the status we are sending
 		status := c.Writer.Status()
 
-		logger.Debugf("Latency: %v Status: %v", latency, status)
+		logger.Debug("Request", "latency", latency, "status", status)
 	}
 }
 
 func (server *Server) configRouter() {
-	logger.Debugf("[Server] configRouter")
+	logger.Debug("[Server] configRouter")
 
 	server.router.Use(gin.Logger())
 	//server.router.Use(myLogger())
@@ -76,18 +76,18 @@ func (server *Server) configRouter() {
 }
 
 func (server *Server) Run(port int) error {
-	logger.Debugf("[Server] Run")
+	logger.Debug("[Server] Run")
 
 	if err := server.loadJwtKeys(); err != nil {
-		logger.Fatalf("[Server] loadJwtKeys: %+v", err)
+		logger.Fatal("[Server] loadJwtKeys", "error", err)
 	}
 
 	if err := server.createEnforcer(); err != nil {
-		logger.Fatalf("[Server] createEnforcer: %+v", err)
+		logger.Fatal("[Server] createEnforcer", "error", err)
 	}
 
 	if bigCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(1 * time.Minute)); err != nil {
-		logger.Fatalf("[Server] bigcache.NewBigCache: %+v", err)
+		logger.Fatal("[Server] bigcache.NewBigCache", "error", err)
 	} else {
 		server.bigCache = bigCache
 	}
@@ -114,13 +114,13 @@ func (server *Server) Run(port int) error {
 	}
 
 	if err := storage.Init(); err != nil {
-		logger.Fatalf("[Server] storage.Init(): %+v", err)
+		logger.Fatal("[Server] storage.Init()", "error", err)
 	}
 
 	go func() {
 		// service connections
 		if err := server.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatalf("[Server] listen error: %v", err)
+			logger.Fatal("[Server] listen", "error", err)
 		}
 	}()
 
@@ -149,7 +149,7 @@ func (server *Server) IsExiting() bool {
 }
 
 func (server *Server) Close() {
-	logger.Debugf("[Server] Close")
+	logger.Debug("[Server] Close")
 
 	// Create a deadline to wait for.
 	ctx, cancel := context.WithTimeout(context.Background(), 15)
@@ -161,10 +161,10 @@ func (server *Server) Close() {
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
 	if err := server.srv.Shutdown(ctx); err != nil {
-		logger.Errorf("server shutdown error: %+v", err)
+		logger.Error("server shutdown", "error", err)
 	}
 	// Optionally, you could run svr.Shutdown in a goroutine and block on
 	// <-ctx.Done() if your application should wait for other services
 	// to finalize based on context cancellation.
-	logger.Infof("[HttpServer] shutdown gracefully")
+	logger.Info("[HttpServer] shutdown gracefully")
 }

@@ -3,11 +3,11 @@ package storage
 import (
 	"example-server/internal/app/example-server/storage/cache"
 	"example-server/internal/app/example-server/storage/db"
-	"github.com/hongjundu/go-level-logger"
+	"github.com/hongjundu/go-color-logger"
 )
 
 func Init() error {
-	logger.Debugf("[storage] Init")
+	logger.Debug("[storage] Init")
 
 	if err := db.Init(); err != nil {
 		return err

@@ -63,8 +63,8 @@ github.com/go-sql-driver/mysql
 github.com/go-xorm/xorm
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
-# github.com/hongjundu/go-level-logger v1.0.0
-github.com/hongjundu/go-level-logger
+# github.com/hongjundu/go-color-logger v0.0.0-20200411131333-0419be4637ce
+github.com/hongjundu/go-color-logger
 # github.com/hongjundu/go-rest-api-helper.v1 v0.0.0-20191107073904-eb2ea85af6b5
 github.com/hongjundu/go-rest-api-helper.v1
 # github.com/json-iterator/go v1.1.7
@@ -80,8 +80,14 @@ github.com/lib/pq/oid
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
-# github.com/mattn/go-isatty v0.0.9
+# github.com/mattn/go-colorable v0.1.6
+github.com/mattn/go-colorable
+# github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
+# github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
+github.com/mgutz/ansi
+# github.com/mgutz/logxi v0.0.0-20161027140823-aebf8a7d67ab
+github.com/mgutz/logxi/v1
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
@@ -102,7 +108,7 @@ github.com/ugorji/go/codec
 golang.org/x/net/idna
 golang.org/x/net/webdav
 golang.org/x/net/webdav/internal/xml
-# golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
+# golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.2
 golang.org/x/text/secure/bidirule
